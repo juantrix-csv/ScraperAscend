@@ -1,7 +1,11 @@
+
 import os
 import requests
 from bs4 import BeautifulSoup
 from openpyxl import Workbook, load_workbook
+import requests
+from bs4 import BeautifulSoup
+
 
 BASE_URL = "https://wakomercadonatural.com/tienda/"
 
@@ -78,6 +82,7 @@ def save_to_excel(products, filename="productos.xlsx"):
     wb.save(filename)
 
 
+
 def main():
     import argparse
 
@@ -92,6 +97,7 @@ def main():
 
     products = scrape_all_pages(args.pages)
     save_to_excel(products)
+
     for product in products:
         print(f"{product['name']} - {product['price']}")
 
