@@ -1,5 +1,7 @@
+import os
 import requests
 from bs4 import BeautifulSoup
+from openpyxl import Workbook, load_workbook
 
 BASE_URL = "https://wakomercadonatural.com/tienda/"
 
@@ -49,6 +51,33 @@ def scrape_all_pages(max_pages=1):
     return all_products
 
 
+def save_to_excel(products, filename="productos.xlsx"):
+    """Create or update an Excel file with the product information."""
+    if os.path.exists(filename):
+        wb = load_workbook(filename)
+        ws = wb.active
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["Nombre", "Precio", "URL"])
+
+    # Map existing URLs to row numbers
+    existing = {
+        ws.cell(row=row, column=3).value: row
+        for row in range(2, ws.max_row + 1)
+    }
+
+    for product in products:
+        row = existing.get(product["url"])
+        if row:
+            ws.cell(row=row, column=1, value=product["name"])
+            ws.cell(row=row, column=2, value=product["price"])
+        else:
+            ws.append([product["name"], product["price"], product["url"]])
+
+    wb.save(filename)
+
+
 def main():
     import argparse
 
@@ -62,6 +91,7 @@ def main():
     args = parser.parse_args()
 
     products = scrape_all_pages(args.pages)
+    save_to_excel(products)
     for product in products:
         print(f"{product['name']} - {product['price']}")
 
